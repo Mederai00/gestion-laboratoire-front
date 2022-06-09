@@ -1,0 +1,144 @@
+<script src="../../../environments/environment.prod.ts"></script>
+<p-toast></p-toast>
+
+<div class="card">
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+      <!--<button pButton pRipple icon="pi pi-trash" class="p-button-danger" [disabled]="!selectedLabos || !selectedLabos.length"></button>-->
+    </ng-template>
+
+
+    <!--<ng-template pTemplate="right">
+      <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+      <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"></button>
+    </ng-template> -->
+  </p-toolbar>
+
+  <p-table #dt [value]="laboratoires" [rows]="10" [paginator]="true" [globalFilterFields]="['nom','responsable.name','adresse','ville', 'telephone', 'domaine']" responsiveLayout="scroll"
+           [(selection)]="selectedLabos" [rowHover]="true" dataKey="id"
+           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
+    <ng-template pTemplate="caption">
+      <div class="d-flex justify-content-between">
+        <h5 class="m-0">Liste des laboratoires</h5>
+        <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Search..." />
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+     <tr>
+         <!--<th style="width: 3rem">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th> -->
+        <th pSortableColumn="nom">Nom <p-sortIcon field="nom"></p-sortIcon></th>
+        <th pSortableColumn="domaine">Domaine <p-sortIcon field="domaine"></p-sortIcon></th>
+        <th style="width: 15%" pSortableColumn="responsable.name">Responsable <p-sortIcon field="responsable.name"></p-sortIcon></th>
+        <th style="width: 17%" pSortableColumn="adresse">Adresse <p-sortIcon field="price"></p-sortIcon></th>
+        <th pSortableColumn="ville">Ville <p-sortIcon field="ville"></p-sortIcon></th>
+        <th pSortableColumn="telephone">Téléphone <p-sortIcon field="telephone"></p-sortIcon></th>
+        <th style="width: 12%"></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-laboratoire>
+      <tr>
+        <!--<td>
+          <p-tableCheckbox [value]="laboratoire"></p-tableCheckbox>
+        </td>-->
+        <td>{{laboratoire.nom}}</td>
+        <td>{{laboratoire.domaine}}</td>
+        <td>{{laboratoire.responsable.name}}</td>
+        <td>{{laboratoire.adresse}}</td>
+        <td>{{laboratoire.ville}}</td>
+        <td>{{laboratoire.telephone}}</td>
+        <td>
+          <button pButton pRipple icon="pi pi-info" class="p-button-rounded p-button-info mr-2" routerLink="/admin/infos-completes-labo" (click)="viewLaboMembres(laboratoire)"></button>
+          <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteLabo(laboratoire)"></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="summary">
+      <div class="flex align-items-center justify-content-between">
+        Au total, il y a {{laboratoires ? laboratoires.length : 0 }} laboratoires.
+      </div>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog [(visible)]="laboDialog" [style]="{width: '560px', height:'800px'}" header="Nouveau laboratoire" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+
+    <div class="row mb-3">
+      <div class="field col">
+        <label for="nom">Nom</label>
+        <input type="text" pInputText id="nom" [(ngModel)]="laboratoire.nom" required autofocus />
+        <small class="p-error" *ngIf="submitted && !laboratoire.nom">Le nom est requis.</small>
+      </div>
+      <div class="field col">
+        <label for="domaine">Domaine</label>
+        <input type="text" pInputText id="domaine" [(ngModel)]="laboratoire.domaine" required autofocus />
+        <small class="p-error" *ngIf="submitted && !laboratoire.domaine">Le domaine est requis.</small>
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="field col">
+        <label for="telephone">Téléphone</label>
+        <input type="text" pInputText id="telephone" [(ngModel)]="laboratoire.telephone" required autofocus />
+        <small class="p-error" *ngIf="submitted && !laboratoire.telephone">Le numéro de téléphone est requis.</small>
+      </div>
+      <div class="field col">
+        <label for="ville">Ville</label>
+        <input type="text" pInputText id="ville" [(ngModel)]="laboratoire.ville" required autofocus />
+        <small class="p-error" *ngIf="submitted && !laboratoire.ville">La ville est requise.</small>
+      </div>
+    </div>
+
+    <div class="field mb-3">
+      <label for="adresse">Adresse</label>
+      <input type="text" pInputText id="adresse" [(ngModel)]="laboratoire.adresse" required autofocus />
+      <small class="p-error" *ngIf="submitted && !laboratoire.adresse">L'adresse est requise.</small>
+    </div>
+
+    <div class="field mb-3">
+      <label for="membres">Membres</label>
+      <span class="p-float-label">
+        <p-multiSelect id="membres" [options]="usersWithoutLabo" [(ngModel)]="selectedUsers" defaultLabel="Selectionner les membres" optionLabel="name" selectedItemsLabel="{0} membres sélectionnés"></p-multiSelect>
+        </span>
+    </div>
+
+    <div class="field mb-5">
+      <label for="responsable">Responsable</label>
+      <p-dropdown id="responsable" [options]="selectedUsers" [(ngModel)]="laboratoire.responsable" placeholder="Sélectionner le responsable" optionLabel="name" [showClear]="true"></p-dropdown>
+    </div>
+
+    <h5 class="mb-3">Informations sur le budget du laboratoire</h5>
+    <div class="row mb-2">
+      <div class="field col">
+        <label for="db">Dotation de base</label>
+        <p-inputNumber id="db" [(ngModel)]="budget.db" mode="currency" currency="MAD"></p-inputNumber>
+        <small class="p-error" *ngIf="submitted && !budget.db">La dotation de base est requise.</small>
+      </div>
+      <div class="field col">
+        <label for="dr">Dotation de recherche d'activité</label>
+        <p-inputNumber id="dr" [(ngModel)]="budget.dr" mode="currency" currency="MAD"></p-inputNumber>
+        <small class="p-error" *ngIf="submitted && !budget.dr">La dotation de recherche d'activité est requise.</small>
+      </div>
+    </div>
+
+    <div class="field mb-3">
+      <label for="annee">Année</label>
+      <p-inputNumber id="annee" [(ngModel)]="budget.annee" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"></p-inputNumber>
+      <small class="p-error" *ngIf="submitted && !budget.annee">L'année est requise.</small>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveLabo()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

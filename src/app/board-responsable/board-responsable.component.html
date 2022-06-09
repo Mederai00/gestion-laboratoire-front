@@ -1,5 +1,164 @@
-<div class="container">
-  <header class="jumbotron">
-    <p>{{ content }}</p>
-  </header>
+<div class="container" *ngIf="laboratoire">
+  <div class="row justify-content-center mt-4">
+    <p-card
+      header="{{ laboratoire.nom ? laboratoire.nom : 'not yet' }}"
+      [style]="{ width: '25rem', 'margin-bottom': '2em' }"
+    >
+      <ng-template pTemplate="content">
+        <p>Responsable : {{ laboratoire.responsable.name }}</p>
+        <p>
+          Dotation De Base : {{ laboratoire.budgets | bAnnee: selectedAnnee:1 }}
+        </p>
+        <p>
+          Dotation Recherche :
+          {{ laboratoire.budgets | bAnnee: selectedAnnee:2 }}
+        </p>
+        <p>
+          Reste Dotation Recherche :
+          {{ selectedAnnee ? resteRecherche : "" }}
+        </p>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        Adresse : {{ laboratoire.adresse }}
+      </ng-template>
+    </p-card>
+  </div>
+  <p-messages [(value)]="msgs"></p-messages>
+
+  <div>
+    <p-table [value]="users" responsiveLayout="scroll">
+      <ng-template pTemplate="caption">
+        <div class="flex align-items-center">
+          <p class="">Users</p>
+          <p>Select Annee :</p>
+          <select
+            (change)="onChange($event)"
+            class="custom-select"
+            id="inputGroupSelect01"
+          >
+            <option
+              *ngFor="let annee of annees; let first = first"
+              [selected]="{ first: true }"
+            >
+              {{ annee }}
+            </option>
+          </select>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Nom</th>
+          <th>Username</th>
+          <th>email</th>
+          <th>BudgetPersonnel</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>{{ user.name }}</td>
+
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+
+          <td
+            class="text-center"
+            *ngIf="
+              (user.budgetPersonnels | bpAnnee: selectedAnnee) != 0 &&
+              (user.budgetPersonnels | bpAnnee: selectedAnnee) != null
+            "
+          >
+            {{ user.budgetPersonnels | bpAnnee: selectedAnnee }}
+          </td>
+
+          <td
+            class="text-center"
+            *ngIf="
+              (user.budgetPersonnels | bpAnnee: selectedAnnee) == 0 ||
+              (user.budgetPersonnels | bpAnnee: selectedAnnee) == null
+            "
+          >
+            <button
+              pButton
+              pRipple
+              class="p-button-secondary mr-2"
+              (click)="editUser(user)"
+            >
+              Affecter BP
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="summary">
+        <div class="flex align-items-center justify-content-between">
+          In total there are {{ users ? users.length : 0 }} products.
+        </div>
+      </ng-template>
+    </p-table>
+  </div>
+  <p-dialog
+    [(visible)]="userDialog"
+    [style]="{ width: '450px' }"
+    header="User Details"
+    [modal]="true"
+    styleClass="p-fluid"
+  >
+    <ng-template pTemplate="content">
+      <div class="field">
+        <label for="name">Name</label>
+        <input
+          type="text"
+          pInputText
+          id="name"
+          value="{{ user.name }}"
+          disabled
+          autofocus
+        />
+      </div>
+      <div class="field">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          pInputText
+          id="username"
+          value="{{ user.username }}"
+          disabled
+          autofocus
+        />
+      </div>
+
+      <div class="field">
+        <label for="email">Username</label>
+        <input
+          type="text"
+          pInputText
+          id="email"
+          [(ngModel)]="user.email"
+          disabled
+          autofocus
+        />
+      </div>
+      <div class="field">
+        <label for="bp">Budget Personnel</label>
+        <p-inputNumber id="bp" (onInput)="loguserBP($event)"></p-inputNumber>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        pRipple
+        label="Cancel"
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="hideDialog()"
+      ></button>
+      <button
+        pButton
+        pRipple
+        label="Save"
+        icon="pi pi-check"
+        class="p-button-text"
+        (click)="saveBudgetPersonnel()"
+      ></button>
+    </ng-template>
+  </p-dialog>
 </div>

@@ -1,0 +1,29 @@
+<p-card>
+  <h2>Lboratoire "{{selectedLab.nom}}"</h2>
+  <ul style="list-style-type:square;">
+    <li>Nom: {{selectedLab.nom}}</li>
+    <li>Responsable: {{selectedLab.responsable.name}}</li>
+    <li>Adresse: {{selectedLab.adresse}}</li>
+    <li>Ville: {{selectedLab.ville}}</li>
+    <li>Téléphone: {{selectedLab.telephone}}</li>
+    <li>Domaine: {{selectedLab.domaine}}</li>
+  </ul>
+
+  <div class="card">
+    <h5 style="padding: 10px">Les membres du laboratoire "{{selectedLab.nom}}"</h5>
+    <p-table [value]="membresList">
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon></th>
+          <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-membre>
+        <tr>
+          <td>{{membre.name}}</td>
+          <td>{{membre.email}}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-card>

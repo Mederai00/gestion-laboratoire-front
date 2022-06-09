@@ -1,16 +1,38 @@
-import { TestBed } from '@angular/core/testing';
+import { Injectable } from '@angular/core';
+import { StorageUser } from '../models/laboratoire.model';
 
-import { StorageService } from './storage.service';
+const USER_KEY = 'auth-user';
 
-describe('StorageService', () => {
-  let service: StorageService;
+@Injectable({
+  providedIn: 'root',
+})
+export class StorageService {
+  constructor() {}
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(StorageService);
-  });
+  clean(): void {
+    window.sessionStorage.clear();
+  }
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-});
+  public saveUser(user: StorageUser): void {
+    window.sessionStorage.removeItem(USER_KEY);
+    window.sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+  }
+
+  public getUser(): StorageUser {
+    const user = window.sessionStorage.getItem(USER_KEY);
+    if (user) {
+      return JSON.parse(user);
+    }
+
+    return {} as StorageUser;
+  }
+
+  public isLoggedIn(): boolean {
+    const user = window.sessionStorage.getItem(USER_KEY);
+    if (user) {
+      return true;
+    }
+
+    return false;
+  }
+}
